@@ -1,3 +1,7 @@
+## 2.2.0 2026-05-21
+
+- Miscellaneous non-user-facing changes
+
 ## 2.1.0 2026-04-30
 
 - **Bug Fix** fix: properly send folder context when calling @folder
