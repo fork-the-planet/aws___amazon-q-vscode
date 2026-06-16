@@ -195,6 +195,12 @@
                     "type": "boolean",
                     "markdownDescription": "%AWS.configuration.description.amazonq.proxy.enableProxyAndCertificateAutoDiscovery%",
                     "default": true
+                },
+                "aws.dev.amazonqLsp": {
+                    "type": "object",
+                    "scope": "machine",
+                    "default": {},
+                    "markdownDescription": "Developer use only"
                 }
             }
         },
