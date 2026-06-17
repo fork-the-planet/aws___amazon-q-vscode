@@ -200,7 +200,7 @@
                     "type": "object",
                     "scope": "machine",
                     "default": {},
-                    "markdownDescription": "Developer use only"
+                    "markdownDescription": "%AWS.configuration.description.amazonqLsp%"
                 }
             }
         },
