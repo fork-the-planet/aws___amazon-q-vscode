@@ -19,6 +19,7 @@ import { ClassToInterfaceType } from '../../shared/utilities/tsUtils'
 import { Optional } from '../../shared/utilities/typeConstructors'
 import { ToolkitError } from '../../shared/errors'
 import { getTestWindow } from './vscode/window'
+import * as env from '../../shared/vscode/env'
 
 const settingsTarget = vscode.ConfigurationTarget.Workspace
 
@@ -348,6 +349,38 @@ describe('DevSetting', function () {
             await settings.update('aws.dev.forceDevMode', false)
             await settings.update(`aws.dev.${testSetting}`, true).then(() => sut.get(testSetting, false))
             assert.strictEqual(sut.isDevMode(), false)
+        })
+    })
+
+    describe('release build gate', function () {
+        afterEach(function () {
+            sinon.restore()
+        })
+
+        it('ignores dev setting overrides in a release build', async function () {
+            sinon.stub(env, 'isReleaseVersion').returns(true)
+            await settings.update(`aws.dev.${testSetting}`, true)
+            // Even though the setting is set, a release build returns the default.
+            assert.strictEqual(sut.get(testSetting, false), false)
+        })
+
+        it('honors the override in a release build when forceDevMode is set', async function () {
+            sinon.stub(env, 'isReleaseVersion').returns(true)
+            await settings.update('aws.dev.forceDevMode', true)
+            await settings.update(`aws.dev.${testSetting}`, true)
+            assert.strictEqual(sut.get(testSetting, false), true)
+        })
+
+        it('honors the override in a non-release build', async function () {
+            sinon.stub(env, 'isReleaseVersion').returns(false)
+            await settings.update(`aws.dev.${testSetting}`, true)
+            assert.strictEqual(sut.get(testSetting, false), true)
+        })
+
+        it('ignores object overrides (e.g. endpoints) in a release build', async function () {
+            sinon.stub(env, 'isReleaseVersion').returns(true)
+            await settings.update('aws.dev.endpoints', { sso: 'https://override.example' })
+            assert.deepStrictEqual(sut.get('endpoints', {}), {})
         })
     })
 
