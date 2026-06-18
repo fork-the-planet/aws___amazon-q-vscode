@@ -17,6 +17,7 @@ import { assertHasProps, ClassToInterfaceType, keys } from './utilities/tsUtils'
 import { toRecord } from './utilities/collectionUtils'
 import { once, onceChanged } from './utilities/functionUtils'
 import { ToolkitError } from './errors'
+import { isReleaseVersion } from './vscode/env'
 import { telemetry } from './telemetry/telemetry'
 import globals from './extensionGlobals'
 import toolkitSettings from './settings-toolkit.gen'
@@ -871,6 +872,13 @@ export class DevSettings extends Settings.define('aws.dev', devSettings) {
     }
 
     public override get<K extends AwsDevSetting>(key: K, defaultValue: ResolvedDevSettings[K]) {
+        // In a release build, ignore all `aws.dev.*` overrides unless the developer has
+        // explicitly opted in via `aws.dev.forceDevMode`. These settings are developer-only
+        // and should be inert in the shipped extension regardless of their configuration scope.
+        if (isReleaseVersion() && !this._isSet('forceDevMode')) {
+            return defaultValue
+        }
+
         if (!this._isSet(key)) {
             this.unset(key)
 
