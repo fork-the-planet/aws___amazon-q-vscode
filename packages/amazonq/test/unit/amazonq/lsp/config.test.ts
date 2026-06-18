@@ -225,3 +225,23 @@ describe('pushConfigUpdate', () => {
         )
     })
 })
+
+describe('aws.dev.amazonqLsp configuration scope', () => {
+    // The `aws.dev.amazonqLsp` developer setting must be declared with `machine` scope
+    // so that it is only configurable at the user/machine level and not by a workspace.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const pkg = require('../../../../package.json')
+
+    it('is declared in contributes.configuration', () => {
+        const properties = pkg.contributes.configuration.properties
+        assert.ok(
+            properties['aws.dev.amazonqLsp'],
+            'aws.dev.amazonqLsp must be declared in package.json contributes.configuration'
+        )
+    })
+
+    it('uses machine scope so it is not workspace-configurable', () => {
+        const entry = pkg.contributes.configuration.properties['aws.dev.amazonqLsp']
+        assert.strictEqual(entry.scope, 'machine', 'aws.dev.amazonqLsp must be machine-scoped')
+    })
+})
